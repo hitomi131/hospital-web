@@ -22,6 +22,22 @@ python manage.py runserver
 
 `python app.py` запускает тот же Django-сайт. Прежний настольный интерфейс сохранён как `legacy_tkinter_app.py`; для работы с сайтом запускайте `app.py` или `manage.py`.
 
+## Запуск в Docker Compose на Linux VM
+
+Для контейнерного стенда установите Docker Engine и Compose Plugin внутри Linux VM. Скопируйте `.env.example` в `.env`, задайте уникальные значения `DJANGO_SECRET_KEY` и `DB_PASSWORD`, затем укажите IP VM в `DJANGO_ALLOWED_HOSTS` (или используйте `localhost` при настроенном пробросе порта). Не отправляйте `.env` в Git.
+
+Из корня проекта выполните:
+
+```bash
+docker compose config --quiet
+docker compose up --build -d
+docker compose ps
+```
+
+Приложение будет доступно на порту `8080` VM. Nginx принимает HTTP-запросы, Django запускается через Gunicorn, PostgreSQL сохраняет данные в named volume. Django миграции выполняются отдельным одноразовым сервисом до запуска сайта; готовность PostgreSQL проверяется healthcheck. Статика собирается в общий volume и раздаётся Nginx. Аватары продолжают обслуживаться Django с проверкой доступа.
+
+Для просмотра логов используйте `docker compose logs -f web nginx db`. Остановка `docker compose down` сохраняет данные в volumes; `docker compose down -v` удаляет volumes, включая базу, и использовать эту команду для обычной остановки нельзя.
+
 После входа администратора откройте `/admin/`, создайте учётные записи врачей и назначьте им роль «Врач». Регистрация на сайте создаёт только пациентские учётные записи.
 
 ## Публичная часть сайта
