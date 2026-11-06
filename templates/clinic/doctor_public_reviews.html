@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Отзывы о враче {{ doctor.full_name }} — Поликлиника{% endblock %}
+
+{% block content %}
+{% include 'clinic/public_nav.html' with light=True %}
+<main class="public-page">
+    <section class="public-page-hero">
+        <a href="{% url 'about' %}#specialists" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Все специалисты</a>
+        <span class="section-eyebrow" style="display:block;margin-top:24px;">Отзывы пациентов</span>
+        <h1>{{ doctor.full_name }}</h1>
+        <p>{{ doctor.specialty|default:'Врач' }}</p>
+        <div class="doctor-rating-summary">
+            {% if review_count %}
+                <strong><i class="fas fa-star"></i> {{ average_rating|floatformat:1 }} <span>из 5</span></strong>
+                <span>{{ review_count }} опубликованных отзывов</span>
+            {% else %}
+                <span>У этого врача пока нет опубликованных отзывов.</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="review-privacy-note"><i class="fas fa-shield-alt"></i> Отзывы оставляют пациенты после состоявшегося приёма. Они публикуются после проверки и отображаются без имени пациента.</div>
+
+    {% if reviews %}
+    <section class="public-reviews-list">
+        {% for review in reviews %}
+        <article class="public-review-card">
+            <header>
+                <div><strong>Пациент</strong><span>Подтверждённый приём</span></div>
+                <div class="public-review-score"><i class="fas fa-star"></i> {{ review.rating }}/5</div>
+            </header>
+            <p>{{ review.text }}</p>
+            <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"d.m.Y" }}</time>
+        </article>
+        {% endfor %}
+    </section>
+    {% endif %}
+</main>
+<footer class="public-footer">
+    <a href="{% url 'home' %}" class="home-nav-logo"><i class="fas fa-hospital-alt"></i><span>Городская Поликлиника №1</span></a>
+    <div><a href="{% url 'about' %}">О поликлинике</a><a href="{% url 'news_list' %}">Новости</a></div>
+    <span>© {% now "Y" %} Городская Поликлиника №1</span>
+</footer>
+{% endblock %}

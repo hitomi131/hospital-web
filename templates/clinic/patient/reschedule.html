@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Перенос записи — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-exchange-alt" style="color:var(--primary);"></i> Перенос записи{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Перенос записи</h1>
+    <p>Выберите новую дату и время для вашей записи</p>
+</div>
+
+<div style="max-width: 600px; margin: 0 auto;">
+    <!-- Current appointment info -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-info-circle"></i> Текущая запись</div>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.9rem;">
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Врач</div>
+                    <div style="font-weight: 600;">{{ appt.doctor.full_name }}</div>
+                    {% if appt.doctor.specialty %}<div style="color: var(--text-muted);">{{ appt.doctor.specialty }}</div>{% endif %}
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Текущая дата</div>
+                    <div style="font-weight: 600;">{{ appt.appt_date|date:"d.m.Y" }}, {{ appt.appt_time|time:"H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reschedule form -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-calendar-alt"></i> Выберите новое время</div>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <!-- Hidden fields for JS -->
+                <input type="hidden" id="reschedule-doctor-id" value="{{ appt.doctor.id }}">
+                <input type="hidden" id="reschedule-exclude-id" value="{{ appt.id }}">
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Новая дата <span class="required">*</span>
+                    </label>
+                    <input type="date" name="appt_date" id="reschedule-date" class="form-input" min="{{ today }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i> Свободное время <span class="required">*</span>
+                    </label>
+                    <select name="appt_time" id="reschedule-time" class="form-input">
+                        <option value="">Сначала выберите дату...</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+                        <i class="fas fa-check"></i> Сохранить новую дату
+                    </button>
+                    <a href="{% url 'my_appointments' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ article.title }} — Новости поликлиники{% endblock %}
+
+{% block content %}
+{% include 'clinic/public_nav.html' with light=True %}
+<main class="public-page">
+    <article class="news-article">
+        <a href="{% url 'news_list' %}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Все новости</a>
+        <div class="news-card-date"><i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}</div>
+        <h1>{{ article.title }}</h1>
+        {% if article.summary %}<p class="news-article-summary">{{ article.summary }}</p>{% endif %}
+        <div class="news-article-content">{{ article.content|linebreaks }}</div>
+    </article>
+</main>
+<footer class="public-footer">
+    <a href="{% url 'home' %}" class="home-nav-logo"><i class="fas fa-hospital-alt"></i><span>Городская Поликлиника №1</span></a>
+    <div><a href="{% url 'about' %}">О поликлинике</a><a href="{% url 'news_list' %}">Новости</a></div>
+    <span>© {% now "Y" %} Городская Поликлиника №1</span>
+</footer>
+{% endblock %}

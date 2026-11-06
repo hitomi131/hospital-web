@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Городская Поликлиника №1 — Онлайн запись{% endblock %}
+{% block body_class %}{% endblock %}
+
+{% block content %}
+<div class="home-hero">
+    {% include 'clinic/public_nav.html' %}
+
+    <!-- Hero Content -->
+    <div class="home-hero-content">
+        <div class="home-hero-badge">
+            <i class="fas fa-shield-alt"></i>
+            Безопасно · Удобно · Быстро
+        </div>
+        <h1>Запишитесь к врачу<br><span>онлайн за 2 минуты</span></h1>
+        <p>Современная система записи на приём. Выберите специалиста, удобную дату и время — без звонков и очередей.</p>
+        <div class="home-hero-btns">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-plus"></i> Записаться сейчас
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-lg" style="background:rgba(255,255,255,0.1); color:white; border:2px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-sign-in-alt"></i> Войти в систему
+            </a>
+        </div>
+    </div>
+</div>
+
+<section class="public-section public-news" id="news">
+    <div class="section-heading">
+        <div><span class="section-eyebrow">Будьте в курсе</span><h2>Новости поликлиники</h2></div>
+        <a href="{% url 'news_list' %}" class="btn btn-secondary">Все новости <i class="fas fa-arrow-right"></i></a>
+    </div>
+    {% if news %}
+    <div class="news-grid">
+        {% for article in news %}
+        <article class="news-card">
+            <div class="news-card-date"><i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}</div>
+            <h3><a href="{% url 'news_detail' article.pk %}">{{ article.title }}</a></h3>
+            <p>{{ article.summary|default:article.content|truncatechars:150 }}</p>
+            <a href="{% url 'news_detail' article.pk %}" class="text-link">Читать новость <i class="fas fa-arrow-right"></i></a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="news-empty"><i class="far fa-newspaper"></i><div><strong>Пока нет опубликованных новостей</strong><span>Новые объявления появятся здесь.</span></div></div>
+    {% endif %}
+</section>
+
+<section class="about-preview">
+    <div class="about-preview-icon"><i class="fas fa-hospital-user"></i></div>
+    <div class="about-preview-copy">
+        <span class="section-eyebrow">Городская Поликлиника №1</span>
+        <h2>Помогаем заботиться о здоровье удобнее</h2>
+        <p>На сайте можно узнать о специалистах, посмотреть новости поликлиники и записаться на приём. История посещений и протоколы доступны в защищённом личном кабинете.</p>
+        <a href="{% url 'about' %}" class="btn btn-primary">О поликлинике <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="about-preview-hours">
+        <i class="far fa-clock"></i>
+        <span>Онлайн-запись</span>
+        <strong>08:00 — 18:00</strong>
+        <small>Понедельник — пятница</small>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="home-features">
+    <h2 class="home-features-title">Всё что нужно — в одном месте</h2>
+    <p class="home-features-sub">Полноценный личный кабинет для пациента и врача</p>
+
+    <div class="features-grid">
+        <div class="feature-item">
+            <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="feature-title">Онлайн запись</div>
+            <div class="feature-desc">Записывайтесь к любому специалисту в удобное время, не выходя из дома.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon" style="background:#e0f2f1; color:#00897b;"><i class="fas fa-file-medical"></i></div>
+            <div class="feature-title">Протоколы осмотров</div>
+            <div class="feature-desc">Просматривайте заключения врачей и назначения прямо в личном кабинете.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon" style="background:#fce8e6; color:#ea4335;"><i class="fas fa-history"></i></div>
+            <div class="feature-title">История приёмов</div>
+            <div class="feature-desc">Все ваши записи — прошлые и будущие — в одном удобном месте.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon" style="background:#fef9e7; color:#e67e00;"><i class="fas fa-user-md"></i></div>
+            <div class="feature-title">Панель врача</div>
+            <div class="feature-desc">Врачи видят своё расписание, отмечают посещения и пишут протоколы.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon" style="background:#f3e8ff; color:#7c3aed;"><i class="fas fa-exchange-alt"></i></div>
+            <div class="feature-title">Перенос записи</div>
+            <div class="feature-desc">Легко перенесите запись на другое удобное время в пару кликов.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon" style="background:#e8f0fe; color:#1a73e8;"><i class="fas fa-user-cog"></i></div>
+            <div class="feature-title">Личный профиль</div>
+            <div class="feature-desc">Храните свои данные и контактную информацию в безопасном профиле.</div>
+        </div>
+    </div>
+</section>
+
+<section class="public-section public-doctors" id="specialists">
+    <div class="section-heading">
+        <div><span class="section-eyebrow">Специалисты</span><h2>Наши врачи</h2></div>
+        <a href="{% url 'register' %}" class="btn btn-primary">Записаться на приём <i class="fas fa-arrow-right"></i></a>
+    </div>
+    {% if doctors %}
+    <div class="doctors-grid">
+        {% for doctor in doctors %}
+        <article class="doctor-card-public">
+            {% if doctor.avatar %}<img class="doctor-card-avatar" src="{{ doctor.avatar_display_url }}" alt="{{ doctor.full_name }}">{% else %}<div class="doctor-card-avatar"><i class="fas fa-user-md"></i></div>{% endif %}
+            <div class="doctor-card-copy"><h3>{{ doctor.full_name }}</h3><p>{{ doctor.specialty|default:'Врач' }}</p>
+                <div class="doctor-rating">{% if doctor.review_count %}<strong><i class="fas fa-star"></i> {{ doctor.average_rating|floatformat:1 }}</strong><span>{{ doctor.review_count }} отзывов</span>{% else %}<span>Пока без отзывов</span>{% endif %}</div>
+                <a href="{% url 'doctor_reviews' doctor.id %}" class="text-link">Отзывы пациентов <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="public-muted">Список специалистов скоро появится.</p>
+    {% endif %}
+</section>
+
+<footer class="public-footer">
+    <a href="{% url 'home' %}" class="home-nav-logo"><i class="fas fa-hospital-alt"></i><span>Городская Поликлиника №1</span></a>
+    <div><a href="{% url 'about' %}">О поликлинике</a><a href="{% url 'news_list' %}">Новости</a><a href="{% url 'login' %}">Войти</a></div>
+    <span>© {% now "Y" %} Городская Поликлиника №1</span>
+</footer>
+{% endblock %}

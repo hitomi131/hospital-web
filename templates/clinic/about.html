@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}О поликлинике — Городская Поликлиника №1{% endblock %}
+
+{% block content %}
+{% include 'clinic/public_nav.html' with light=True %}
+<main class="public-page">
+    <section class="public-page-hero">
+        <span class="section-eyebrow">Городская Поликлиника №1</span>
+        <h1>О поликлинике</h1>
+        <p>Информация для пациентов, новости и онлайн-сервисы для организации приёма.</p>
+    </section>
+
+    <section class="about-detail-grid">
+        <article class="about-detail-card about-detail-card--feature">
+            <div class="public-feature-icon"><i class="fas fa-heartbeat"></i></div>
+            <h2>Забота о пациентах</h2>
+            <p>Поликлиника объединяет врачей разных специальностей. На сайте пациенты могут выбрать специалиста, записаться на приём и затем посмотреть историю визитов и протоколы в личном кабинете.</p>
+        </article>
+        <article class="about-detail-card">
+            <div class="public-feature-icon public-feature-icon--teal"><i class="fas fa-calendar-alt"></i></div>
+            <h2>Часы онлайн-записи</h2>
+            <p>Свободные слоты доступны с 08:00 до 18:00 с интервалом 15 минут. Запись открыта на сегодняшнюю и будущие даты; актуальное свободное время показывается при выборе врача.</p>
+        </article>
+        <article class="about-detail-card">
+            <div class="public-feature-icon public-feature-icon--violet"><i class="fas fa-lock"></i></div>
+            <h2>Личный кабинет</h2>
+            <p>Пациенту доступны его записи и протоколы. Врач работает со своим расписанием и медкартами пациентов, которые записывались к нему.</p>
+        </article>
+    </section>
+
+    <section class="public-doctors about-doctors" id="specialists">
+        <div class="section-heading"><div><span class="section-eyebrow">Команда</span><h2>Врачи и специальности</h2></div></div>
+        {% if doctors %}
+        <div class="doctors-grid">
+            {% for doctor in doctors %}
+            <article class="doctor-card-public">
+                {% if doctor.avatar %}<img class="doctor-card-avatar" src="{{ doctor.avatar_display_url }}" alt="{{ doctor.full_name }}">{% else %}<div class="doctor-card-avatar"><i class="fas fa-user-md"></i></div>{% endif %}
+                <div class="doctor-card-copy"><h3>{{ doctor.full_name }}</h3><p>{{ doctor.specialty|default:'Врач' }}</p>
+                    <div class="doctor-rating">{% if doctor.review_count %}<strong><i class="fas fa-star"></i> {{ doctor.average_rating|floatformat:1 }}</strong><span>{{ doctor.review_count }} отзывов</span>{% else %}<span>Пока без отзывов</span>{% endif %}</div>
+                    <a href="{% url 'doctor_reviews' doctor.id %}" class="text-link">Отзывы пациентов <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}<p class="public-muted">Список специалистов пока не опубликован.</p>{% endif %}
+    </section>
+
+    <section class="about-cta">
+        <div><h2>Запишитесь на приём онлайн</h2><p>Войдите в личный кабинет или создайте аккаунт пациента.</p></div>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fas fa-calendar-plus"></i> Записаться</a>
+    </section>
+</main>
+<footer class="public-footer">
+    <a href="{% url 'home' %}" class="home-nav-logo"><i class="fas fa-hospital-alt"></i><span>Городская Поликлиника №1</span></a>
+    <div><a href="{% url 'news_list' %}">Новости</a><a href="{% url 'home' %}">Главная</a></div>
+    <span>© {% now "Y" %} Городская Поликлиника №1</span>
+</footer>
+{% endblock %}

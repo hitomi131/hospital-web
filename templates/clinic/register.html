@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация — Городская Поликлиника №1{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <div class="auth-logo">
+                <i class="fas fa-hospital-alt"></i>
+            </div>
+            <div class="auth-logo-title">Городская Поликлиника №1</div>
+            <div class="auth-logo-sub">Регистрация займёт меньше минуты</div>
+            <ul class="auth-features">
+                <li><i class="fas fa-check"></i><span>Бесплатная онлайн запись</span></li>
+                <li><i class="fas fa-clock"></i><span>Доступно круглосуточно</span></li>
+                <li><i class="fas fa-bell"></i><span>История всех приёмов</span></li>
+                <li><i class="fas fa-lock"></i><span>Ваши данные защищены</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="auth-right" style="width: 520px;">
+        <div class="auth-form-container" style="max-width: 440px;">
+            <div class="auth-form-title">Создать аккаунт</div>
+            <div class="auth-form-subtitle">Заполните данные для регистрации пациента</div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.full_name.label }} <span class="required">*</span></label>
+                    {{ form.full_name }}
+                    {% for error in form.full_name.errors %}<div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endfor %}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.username.label }} <span class="required">*</span></label>
+                        {{ form.username }}
+                        {% for error in form.username.errors %}<div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.dob.label }}</label>
+                        {{ form.dob }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.city.label }}</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.address.label }}</label>
+                        {{ form.address }}
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.password.label }} <span class="required">*</span></label>
+                        {{ form.password }}
+                        {% for error in form.password.errors %}<div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.password_confirm.label }} <span class="required">*</span></label>
+                        {{ form.password_confirm }}
+                        {% for error in form.password_confirm.errors %}<div class="form-error"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert--error mb-2"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </form>
+
+            <a href="{% url 'login' %}" class="auth-link mt-2">
+                Уже есть аккаунт? <strong>Войти</strong>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

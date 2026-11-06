@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Новости — Городская Поликлиника №1{% endblock %}
+
+{% block content %}
+{% include 'clinic/public_nav.html' with light=True %}
+<main class="public-page">
+    <section class="public-page-hero">
+        <span class="section-eyebrow">Информация для пациентов</span>
+        <h1>Новости поликлиники</h1>
+        <p>Объявления и актуальная информация от администрации.</p>
+    </section>
+    {% if news %}
+    <div class="news-grid news-grid--listing">
+        {% for article in news %}
+        <article class="news-card">
+            <div class="news-card-date"><i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}</div>
+            <h2><a href="{% url 'news_detail' article.pk %}">{{ article.title }}</a></h2>
+            <p>{{ article.summary|default:article.content|truncatechars:220 }}</p>
+            <a href="{% url 'news_detail' article.pk %}" class="text-link">Читать новость <i class="fas fa-arrow-right"></i></a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="news-empty news-empty--page"><i class="far fa-newspaper"></i><div><strong>Пока новостей нет</strong><span>Опубликованные объявления появятся на этой странице.</span></div></div>
+    {% endif %}
+</main>
+<footer class="public-footer">
+    <a href="{% url 'home' %}" class="home-nav-logo"><i class="fas fa-hospital-alt"></i><span>Городская Поликлиника №1</span></a>
+    <div><a href="{% url 'about' %}">О поликлинике</a><a href="{% url 'home' %}">Главная</a></div>
+    <span>© {% now "Y" %} Городская Поликлиника №1</span>
+</footer>
+{% endblock %}

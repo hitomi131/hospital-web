@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Медкарта — {{ patient.full_name }}{% endblock %}
+{% block page_title %}<i class="fas fa-notes-medical" style="color:var(--primary);"></i> Медкарта пациента{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'doctor_medical_records' %}" class="btn btn-secondary btn-sm" style="margin-bottom:12px;"><i class="fas fa-arrow-left"></i> К списку пациентов</a>
+    <h1>{{ patient.full_name }}</h1>
+    <p>История приёмов и протоколов пациента</p>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header"><div class="card-title"><i class="fas fa-id-card"></i> Данные пациента</div></div>
+    <div class="card-body">
+        <div class="medical-profile-grid">
+            <div><span>Дата рождения</span><strong>{{ patient.dob|date:"d.m.Y"|default:"—" }}</strong></div>
+            <div><span>Телефон</span><strong>{{ patient.phone|default:"—" }}</strong></div>
+            <div><span>Город</span><strong>{{ patient.city|default:"—" }}</strong></div>
+            <div><span>Адрес</span><strong>{{ patient.address|default:"—" }}</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title"><i class="fas fa-history"></i> История приёмов</div>
+        <span class="badge badge-info">{{ appointments|length }}</span>
+    </div>
+    {% if appointments %}
+    <div class="card-body">
+        {% for appt in appointments %}
+        <article class="medical-visit">
+            <div class="medical-visit-heading">
+                <div>
+                    <strong>{{ appt.appt_date|date:"d.m.Y" }} · {{ appt.appt_time|time:"H:i" }}</strong>
+                    <div class="medical-visit-doctor"><i class="fas fa-user-md"></i> {{ appt.doctor.full_name }}{% if appt.doctor.specialty %} · {{ appt.doctor.specialty }}{% endif %}</div>
+                </div>
+                <span class="badge {% if appt.visited %}badge-success{% else %}badge-warning{% endif %}">{% if appt.visited %}Приём состоялся{% else %}Запланирован{% endif %}</span>
+            </div>
+            <div class="medical-visit-meta"><strong>СНИЛС:</strong> {{ appt.snils }}</div>
+            {% if appt.report %}
+            <div class="medical-visit-report">
+                <div class="medical-visit-report-title"><i class="fas fa-file-medical-alt"></i> Протокол осмотра</div>
+                <div class="report-text">{{ appt.report }}</div>
+            </div>
+            {% else %}
+            <p class="medical-visit-no-report">Протокол к этому приёму не добавлен.</p>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card-body"><div class="empty-state"><i class="fas fa-calendar-times"></i><h3>История приёмов пуста</h3></div></div>
+    {% endif %}
+</div>
+{% endblock %}

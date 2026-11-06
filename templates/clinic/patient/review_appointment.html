@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Оценка приёма — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-star" style="color:var(--primary);"></i> Отзыв о приёме{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if has_existing_review %}Изменить отзыв{% else %}Оценить приём{% endif %}</h1>
+    <p>Ваш отзыв поможет другим пациентам узнать о враче и качестве приёма.</p>
+</div>
+
+<div class="review-form-layout">
+    <section class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-user-md"></i> Оценка врача</div></div>
+        <div class="card-body">
+            <div class="review-appointment-summary">
+                <strong>{{ appointment.doctor.full_name }}</strong>
+                <span>{% if appointment.doctor.specialty %}{{ appointment.doctor.specialty }} · {% endif %}{{ appointment.appt_date|date:"d.m.Y" }}, {{ appointment.appt_time|time:"H:i" }}</span>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <fieldset class="form-group rating-fieldset">
+                    <legend class="form-label">{{ form.rating.label }} <span class="required">*</span></legend>
+                    <div class="rating-options">
+                        {% for radio in form.rating %}
+                        <label class="rating-option">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    {% for error in form.rating.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                </fieldset>
+                <div class="form-group">
+                    <label class="form-label" for="id_text">{{ form.text.label }} <span class="required">*</span></label>
+                    {{ form.text }}
+                    <div class="form-help">До 2000 символов. Не указывайте диагнозы, СНИЛС, телефон и другие личные медицинские сведения.</div>
+                    {% for error in form.text.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="review-moderation-note"><i class="fas fa-info-circle"></i> Отзыв будет опубликован на странице врача после проверки администрацией. Он появится без вашего имени.</div>
+                <div class="review-form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane"></i> Отправить отзыв</button>
+                    <a href="{% url 'my_appointments' %}" class="btn btn-secondary btn-lg">Назад к записям</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

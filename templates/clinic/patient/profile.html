@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-user-cog" style="color:var(--primary);"></i> Профиль{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Личный профиль</h1>
+    <p>Обновляйте ваши контактные данные и информацию</p>
+</div>
+
+<div class="profile-layout">
+
+    <!-- Profile card -->
+    <div class="card" style="text-align: center;">
+        <div class="card-body">
+            {% if user.avatar %}
+            <img class="profile-avatar" src="{{ user.avatar_display_url }}" alt="Аватар {{ user.full_name }}">
+            {% else %}
+            <div class="profile-avatar profile-avatar--placeholder"><i class="{% if user.is_doctor %}fas fa-user-md{% else %}fas fa-user{% endif %}"></i></div>
+            {% endif %}
+            <div style="font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">{{ user.full_name }}</div>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">@{{ user.username }}</div>
+            <span class="badge badge-info">{{ user.get_role_display }}</span>
+
+            {% if user.is_doctor and user.specialty %}
+            <div style="margin-top: 12px; color: var(--text-secondary); font-size: .88rem;">{{ user.specialty }}</div>
+            {% endif %}
+
+            {% if user.dob %}
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-birthday-cake" style="color: var(--primary);"></i>
+                {{ user.dob|date:"d.m.Y" }}
+            </div>
+            {% endif %}
+
+            {% if user.phone %}
+            <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-phone" style="color: var(--success);"></i>
+                {{ user.phone }}
+            </div>
+            {% endif %}
+
+            {% if user.city %}
+            <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);">
+                <i class="fas fa-map-marker-alt" style="color: var(--danger);"></i>
+                {{ user.city }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Edit form -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-pencil-alt"></i>
+                Редактировать данные
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.full_name.label }}</label>
+                    {{ form.full_name }}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.dob.label }}</label>
+                        {{ form.dob }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.city.label }}</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.address.label }}</label>
+                        {{ form.address }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.avatar.id_for_label }}">Фото профиля</label>
+                    {{ form.avatar }}
+                    <small class="form-help">JPG, PNG или другой поддерживаемый формат изображения, до 5 МБ.</small>
+                    {% for error in form.avatar.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    {% if user.avatar %}<label class="avatar-clear-option">{{ form.avatar_clear }} {{ form.avatar_clear.label }}</label>{% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

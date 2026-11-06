@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Запись на приём — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-calendar-plus" style="color:var(--primary);"></i> Запись на приём{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Запись на приём</h1>
+    <p>Выберите врача, удобную дату и время — мы вас ждём</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+
+    <!-- Booking Form -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-clipboard-list"></i>
+                Оформить талон
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" id="booking-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="doctor-select">
+                        <i class="fas fa-user-md"></i> Врач <span class="required">*</span>
+                    </label>
+                    <select name="doctor" id="doctor-select" class="form-input">
+                        <option value="">— Выберите специалиста —</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}">{{ doctor.full_name }}{% if doctor.specialty %} ({{ doctor.specialty }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="appt-date">
+                        <i class="fas fa-calendar-alt"></i> Дата приёма <span class="required">*</span>
+                    </label>
+                    <input type="date" name="appt_date" id="appt-date" class="form-input" min="{{ today }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="appt-time">
+                        <i class="fas fa-clock"></i> Свободное время <span class="required">*</span>
+                    </label>
+                    <select name="appt_time" id="appt-time" class="form-input">
+                        <option value="">Сначала выберите врача и дату...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_snils">
+                        <i class="fas fa-id-card"></i> СНИЛС <span class="required">*</span>
+                    </label>
+                    <input type="text" name="snils" id="id_snils" class="form-input" placeholder="000-000-000 00" maxlength="14">
+                    <div class="form-help">Формат: 000-000-000 00</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top: 8px;">
+                    <i class="fas fa-check-circle"></i> Записаться на приём
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div>
+        <!-- Working hours -->
+        <div class="card mb-2" style="margin-bottom: 16px;">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle"></i> Информация</div>
+            </div>
+            <div class="card-body" style="padding: 18px 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: var(--text-secondary);">
+                        <i class="fas fa-clock" style="color: var(--primary); width: 16px;"></i>
+                        <div><strong>Часы приёма</strong><br>08:00 — 18:00, пн-пт</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; color: var(--text-secondary);">
+                        <i class="fas fa-calendar-check" style="color: var(--success); width: 16px;"></i>
+                        <div><strong>Интервал</strong><br>Каждые 15 минут</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; color: var(--text-secondary);">
+                        <i class="fas fa-map-marker-alt" style="color: var(--danger); width: 16px;"></i>
+                        <div><strong>Адрес</strong><br>Городская Поликлиника №1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors list -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-users-md"></i> Наши врачи</div>
+            </div>
+            <div class="card-body" style="padding: 12px;">
+                {% for doctor in doctors %}
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+                    <div style="width:38px; height:38px; background: linear-gradient(135deg, var(--primary), #4dabf7); border-radius: 50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.9rem; flex-shrink:0;">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-primary);">{{ doctor.full_name }}</div>
+                        {% if doctor.specialty %}
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">{{ doctor.specialty }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

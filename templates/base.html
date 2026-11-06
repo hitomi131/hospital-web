@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Городская Поликлиника №1{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-hospital-alt"></i>
+                <div>
+                    <span class="sidebar-title">Поликлиника</span>
+                    <span class="sidebar-subtitle">№1</span>
+                </div>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar_display_url }}" alt="Аватар {{ user.full_name }}">
+                {% elif user.is_staff %}
+                    <i class="fas fa-user-shield"></i>
+                {% elif user.is_doctor %}
+                    <i class="fas fa-user-md"></i>
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="user-info">
+                <span class="user-name">{{ user.full_name|truncatechars:22 }}</span>
+                <span class="user-role">{% if user.is_staff %}Администратор{% else %}{{ user.get_role_display }}{% endif %}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Администрирование</span>
+                </a>
+            {% elif user.is_doctor %}
+                <a href="{% url 'doctor_schedule' %}" class="nav-item {% if request.resolver_match.url_name == 'doctor_schedule' %}active{% endif %}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Расписание</span>
+                </a>
+                <a href="{% url 'doctor_reports' %}" class="nav-item {% if request.resolver_match.url_name == 'doctor_reports' %}active{% endif %}">
+                    <i class="fas fa-file-medical-alt"></i>
+                    <span>Мои протоколы</span>
+                </a>
+                <a href="{% url 'doctor_medical_records' %}" class="nav-item {% if request.resolver_match.url_name == 'doctor_medical_records' or request.resolver_match.url_name == 'doctor_medical_record' %}active{% endif %}">
+                    <i class="fas fa-notes-medical"></i>
+                    <span>Медкарты</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Профиль</span>
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+                <a href="{% url 'book' %}" class="nav-item {% if request.resolver_match.url_name == 'book' %}active{% endif %}">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Записаться</span>
+                </a>
+                <a href="{% url 'my_appointments' %}" class="nav-item {% if request.resolver_match.url_name == 'my_appointments' %}active{% endif %}">
+                    <i class="fas fa-list-alt"></i>
+                    <span>Мои записи</span>
+                </a>
+                <a href="{% url 'patient_reports' %}" class="nav-item {% if request.resolver_match.url_name == 'patient_reports' %}active{% endif %}">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Протоколы</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Профиль</span>
+                </a>
+            {% endif %}
+            <div class="nav-divider"></div>
+            <form method="post" action="{% url 'logout' %}" class="nav-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="nav-item nav-item--logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Выйти</span>
+                </button>
+            </form>
+        </nav>
+    </aside>
+
+    <div class="main-wrapper">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="topbar-toggle" id="topbarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+            <div class="topbar-right">
+                <span class="topbar-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="current-date"></span>
+                </span>
+            </div>
+        </header>
+
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert--{{ message.tags }} alert--dismissible">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <main class="main-content">
+{% else %}
+    <!-- Unauthenticated: floating alerts + full-page content -->
+    {% if messages %}
+    <div class="messages-container messages-container--floating">
+        {% for message in messages %}
+        <div class="alert alert--{{ message.tags }} alert--dismissible">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+            {{ message }}
+            <button class="alert-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if user.is_authenticated %}
+        </main>
+    </div>
+{% endif %}
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

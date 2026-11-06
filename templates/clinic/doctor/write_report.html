@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Протокол осмотра — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-file-medical-alt" style="color:var(--primary);"></i> Протокол осмотра{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Протокол осмотра</h1>
+    <p>Заполните заключение и назначения для пациента</p>
+</div>
+
+<div style="max-width: 720px; margin: 0 auto;">
+    <!-- Patient info -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-user"></i> Информация о пациенте</div>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px;">
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Пациент</div>
+                    <div style="font-weight: 700; font-size: 0.95rem;">{{ appt.patient.full_name }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Дата рождения</div>
+                    <div style="font-weight: 600;">{{ appt.patient.dob|date:"d.m.Y"|default:"—" }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">СНИЛС</div>
+                    <div style="font-weight: 600; font-family: monospace;">{{ appt.snils }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Дата приёма</div>
+                    <div style="font-weight: 600;">{{ appt.appt_date|date:"d.m.Y" }}, {{ appt.appt_time|time:"H:i" }}</div>
+                </div>
+                {% if appt.patient.phone %}
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Телефон</div>
+                    <div style="font-weight: 600;">{{ appt.patient.phone }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Report form -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-pencil-alt"></i> Заключение</div>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Протокол осмотра / Назначения:</label>
+                    <textarea name="report" class="form-input" rows="10"
+                              placeholder="Опишите жалобы, результаты осмотра, диагноз и назначения...">{{ appt.report|default:'' }}</textarea>
+                    <div class="form-help">После сохранения пациент посещение будет автоматически отмечено как состоявшееся.</div>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Сохранить протокол
+                    </button>
+                    <a href="{% url 'doctor_schedule' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Назад к расписанию
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

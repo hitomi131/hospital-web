@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-home" style="color:var(--primary);"></i> Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Здравствуйте, {{ user.full_name }}!</h1>
+    <p>Ваш личный кабинет пациента — {{ "now"|date:"d E Y" }}</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon stat-icon--blue">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Всего записей</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon--green">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ visited }}</div>
+            <div class="stat-label">Посещений</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon--orange">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ pending }}</div>
+            <div class="stat-label">Предстоящих</div>
+        </div>
+    </div>
+    <div class="stat-card" style="cursor:pointer;" onclick="window.location='{% url 'book' %}'">
+        <div class="stat-icon stat-icon--teal">
+            <i class="fas fa-plus-circle"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value" style="font-size:1.2rem; color:var(--secondary);">Записаться</div>
+            <div class="stat-label">к врачу сейчас</div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming appointments -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fas fa-calendar-check"></i>
+            Ближайшие записи
+        </div>
+        <a href="{% url 'my_appointments' %}" class="btn btn-secondary btn-sm">
+            Все записи <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if upcoming %}
+            {% for appt in upcoming %}
+            <div class="appt-card">
+                <div class="appt-date-block">
+                    <div class="appt-day">{{ appt.appt_date|date:"d" }}</div>
+                    <div class="appt-month">{{ appt.appt_date|date:"M" }}</div>
+                </div>
+                <div class="appt-details">
+                    <div class="appt-time"><i class="fas fa-clock" style="color:var(--primary);"></i> {{ appt.appt_time|time:"H:i" }}</div>
+                    <div class="appt-doctor"><i class="fas fa-user-md"></i> {{ appt.doctor.full_name }}
+                        {% if appt.doctor.specialty %}<span class="badge badge-info" style="margin-left:6px;">{{ appt.doctor.specialty }}</span>{% endif %}
+                    </div>
+                    <div class="appt-actions">
+                        {% if not appt.visited %}
+                        <form method="post" action="{% url 'cancel_appointment' appt.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" data-confirm="Отменить запись?">
+                                <i class="fas fa-times"></i> Отменить
+                            </button>
+                        </form>
+                        <a href="{% url 'reschedule_appointment' appt.pk %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-exchange-alt"></i> Перенести
+                        </a>
+                        {% else %}
+                        <span class="badge badge-success"><i class="fas fa-check-circle"></i> Посещён</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    {% if appt.visited %}
+                        <span class="badge badge-success"><i class="fas fa-check"></i> Посетил</span>
+                    {% else %}
+                        <span class="badge badge-warning"><i class="fas fa-clock"></i> Ожидается</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Нет предстоящих записей</h3>
+                <p>Запишитесь к врачу прямо сейчас!</p>
+                <a href="{% url 'book' %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i> Записаться на приём
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

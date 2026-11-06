@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Медкарты пациентов — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-notes-medical" style="color:var(--primary);"></i> Медкарты пациентов{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Медкарты пациентов</h1>
+    <p>Здесь собраны пациенты, записанные к вам. В карте доступна история их приёмов и заключений.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title"><i class="fas fa-users"></i> Мои пациенты</div>
+        <span class="badge badge-info">{{ patients|length }}</span>
+    </div>
+    <div class="card-body">
+        <form method="get" class="medical-record-search" role="search">
+            <label class="form-label" for="patient-search">Поиск по ФИО</label>
+            <div class="medical-record-search-row">
+                <input id="patient-search" type="search" name="q" value="{{ search_query }}" class="form-input" placeholder="Введите фамилию или имя">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Найти</button>
+                {% if search_query %}<a href="{% url 'doctor_medical_records' %}" class="btn btn-secondary">Сбросить</a>{% endif %}
+            </div>
+        </form>
+
+        {% if patients %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Пациент</th><th>Дата рождения</th><th>Телефон</th><th></th></tr></thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td><strong>{{ patient.full_name }}</strong></td>
+                        <td>{{ patient.dob|date:"d.m.Y"|default:"—" }}</td>
+                        <td>{{ patient.phone|default:"—" }}</td>
+                        <td><a class="btn btn-outline btn-sm" href="{% url 'doctor_medical_record' patient.pk %}"><i class="fas fa-book-medical"></i> Открыть медкарту</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-injured"></i>
+            {% if search_query %}
+            <h3>Пациенты не найдены</h3>
+            <p>Проверьте написание ФИО или очистите поиск.</p>
+            {% else %}
+            <h3>Пока нет пациентов</h3>
+            <p>Медкарты появятся после того, как к вам запишутся на приём.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

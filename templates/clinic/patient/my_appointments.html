@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои записи — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-list-alt" style="color:var(--primary);"></i> Мои записи{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Мои записи на приём</h1>
+    <p>Управляйте своими записями — переносите или отменяйте при необходимости</p>
+</div>
+
+<!-- Upcoming -->
+<div class="card mb-3" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fas fa-calendar-check"></i>
+            Предстоящие записи
+            <span class="badge badge-info" style="font-weight: 400;">{{ upcoming.count }}</span>
+        </div>
+        <a href="{% url 'book' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Новая запись
+        </a>
+    </div>
+    <div class="card-body">
+        {% if upcoming %}
+            {% for appt in upcoming %}
+            <div class="appt-card">
+                <div class="appt-date-block">
+                    <div class="appt-day">{{ appt.appt_date|date:"d" }}</div>
+                    <div class="appt-month">{{ appt.appt_date|date:"M" }}</div>
+                </div>
+                <div class="appt-details">
+                    <div class="appt-time">
+                        <i class="fas fa-clock" style="color:var(--primary);"></i>
+                        {{ appt.appt_time|time:"H:i" }}
+                        <span style="color:var(--text-muted); font-weight:400; font-size:0.85rem; margin-left:6px;">{{ appt.appt_date|date:"l, d F Y" }}</span>
+                    </div>
+                    <div class="appt-doctor">
+                        <i class="fas fa-user-md" style="color:var(--text-muted);"></i>
+                        {{ appt.doctor.full_name }}
+                        {% if appt.doctor.specialty %}
+                        <span class="badge badge-info" style="margin-left:6px;">{{ appt.doctor.specialty }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+                        <i class="fas fa-id-card"></i> СНИЛС: {{ appt.snils }}
+                    </div>
+                    <div class="appt-actions">
+                        <a href="{% url 'reschedule_appointment' appt.pk %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-exchange-alt"></i> Перенести
+                        </a>
+                        <form method="post" action="{% url 'cancel_appointment' appt.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" data-confirm="Вы уверены, что хотите отменить запись к {{ appt.doctor.full_name }}?">
+                                <i class="fas fa-times"></i> Отменить
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-warning"><i class="fas fa-clock"></i> Ожидается</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Нет предстоящих записей</h3>
+                <p>Запишитесь на приём прямо сейчас</p>
+                <a href="{% url 'book' %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i> Записаться
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Past appointments -->
+{% if past %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fas fa-history"></i>
+            История приёмов
+            <span class="badge badge-secondary">{{ past.count }}</span>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Время</th>
+                    <th>Врач</th>
+                    <th>Специальность</th>
+                    <th>Статус</th>
+                    <th>Протокол</th>
+                    <th>Отзыв</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in past %}
+                <tr>
+                    <td><strong>{{ appt.appt_date|date:"d.m.Y" }}</strong></td>
+                    <td>{{ appt.appt_time|time:"H:i" }}</td>
+                    <td>{{ appt.doctor.full_name }}</td>
+                    <td>{% if appt.doctor.specialty %}<span class="badge badge-info">{{ appt.doctor.specialty }}</span>{% else %}—{% endif %}</td>
+                    <td>
+                        {% if appt.visited %}
+                            <span class="badge badge-success"><i class="fas fa-check-circle"></i> Посетил</span>
+                        {% else %}
+                            <span class="badge badge-danger"><i class="fas fa-times-circle"></i> Не явился</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appt.report %}
+                            <a href="{% url 'patient_reports' %}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-file-medical"></i> Смотреть
+                            </a>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.82rem;">Нет</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appt.visited %}
+                            {% if appt.review %}
+                                <a href="{% url 'review_appointment' appt.pk %}" class="btn btn-secondary btn-sm">
+                                    {% if appt.review.is_published %}<i class="fas fa-star"></i> {{ appt.review.rating }}/5 · Изменить{% else %}<i class="fas fa-hourglass-half"></i> На проверке{% endif %}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'review_appointment' appt.pk %}" class="btn btn-primary btn-sm"><i class="far fa-star"></i> Оценить</a>
+                            {% endif %}
+                        {% else %}<span style="color:var(--text-muted);font-size:.82rem;">Недоступно</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

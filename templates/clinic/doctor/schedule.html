@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Расписание врача — Поликлиника{% endblock %}
+{% block page_title %}<i class="fas fa-calendar-check" style="color:var(--primary);"></i> Расписание{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Добрый день, {{ user.full_name }}!</h1>
+    <p>{% if user.specialty %}{{ user.specialty }} · {% endif %}Расписание приёма пациентов</p>
+</div>
+
+<!-- Date Picker -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 16px 24px;">
+        <form method="get" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.88rem;">
+                <i class="fas fa-calendar-alt"></i> Дата:
+            </label>
+
+            <a href="?date={% with appt_date=selected_date|date:"Y-m-d" %}{{ selected_date }}{% endwith %}"
+               class="date-nav-btn" title="Предыдущий день" id="prev-day">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+
+            <input type="date" name="date" class="form-input" style="width: auto;" value="{{ selected_date }}"
+                   onchange="this.form.submit()">
+
+            <a href="?date=" class="date-nav-btn" id="next-day" title="Следующий день">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+
+            <a href="?date={{ today }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-dot-circle"></i> Сегодня
+            </a>
+
+            <div style="margin-left: auto; font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">
+                Записей на дату: <span style="color: var(--primary);">{{ appointments.count }}</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Appointments Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fas fa-users"></i>
+            Пациенты
+            <span class="badge badge-info">{{ selected_date|date:"d.m.Y" }}</span>
+        </div>
+    </div>
+
+    {% if appointments %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Пациент</th>
+                    <th>СНИЛС</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% csrf_token %}
+                {% for appt in appointments %}
+                <tr class="appt-row">
+                    <td>
+                        <strong style="color: var(--primary); font-size: 1rem;">{{ appt.appt_time|time:"H:i" }}</strong>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;"><a href="{% url 'doctor_medical_record' appt.patient_id %}">{{ appt.patient.full_name }}</a></div>
+                        {% if appt.patient.phone %}
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            <i class="fas fa-phone"></i> {{ appt.patient.phone }}
+                        </div>
+                        {% endif %}
+                        {% if appt.patient.dob %}
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            <i class="fas fa-birthday-cake"></i> {{ appt.patient.dob|date:"d.m.Y" }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <code style="background: var(--bg); padding: 3px 8px; border-radius: 4px; font-size: 0.85rem;">{{ appt.snils }}</code>
+                    </td>
+                    <td>
+                        {% if appt.visited %}
+                            <span class="badge badge-success status-badge">
+                                <i class="fas fa-check-circle"></i> Посетил
+                            </span>
+                        {% else %}
+                            <span class="badge badge-warning status-badge">
+                                <i class="fas fa-clock"></i> Ожидается
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="btn btn-sm toggle-visited-btn {% if appt.visited %}btn-secondary{% else %}btn-success{% endif %}"
+                                    data-appt-id="{{ appt.id }}">
+                                {% if appt.visited %}Отметить отсутствие{% else %}Отметить присутствие{% endif %}
+                            </button>
+                            <a href="{% url 'write_report' appt.id %}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-file-medical-alt"></i>
+                                {% if appt.report %}Ред. протокол{% else %}Протокол{% endif %}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body">
+        <div class="time-slot-empty">
+            <i class="fas fa-calendar-times"></i>
+            <p>На <strong>{{ selected_date|date:"d.m.Y" }}</strong> записей нет.</p>
+            <p style="font-size: 0.82rem; margin-top: 8px; color: var(--text-muted);">Пациенты могут записаться через личный кабинет.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Date navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('input[name="date"]');
+    
+    document.getElementById('prev-day')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!dateInput.value) return;
+        const d = new Date(dateInput.value + 'T00:00:00Z');
+        d.setUTCDate(d.getUTCDate() - 1);
+        window.location.href = '?date=' + d.toISOString().slice(0, 10);
+    });
+    
+    document.getElementById('next-day')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!dateInput.value) return;
+        const d = new Date(dateInput.value + 'T00:00:00Z');
+        d.setUTCDate(d.getUTCDate() + 1);
+        window.location.href = '?date=' + d.toISOString().slice(0, 10);
+    });
+});
+</script>
+{% endblock %}
