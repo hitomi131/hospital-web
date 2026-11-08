@@ -24,7 +24,7 @@ python manage.py runserver
 
 ## Запуск в Docker Compose на Linux VM
 
-Для контейнерного стенда установите Docker Engine и Compose Plugin внутри Linux VM. Скопируйте `.env.example` в `.env`, задайте уникальные значения `DJANGO_SECRET_KEY` и `DB_PASSWORD`, затем укажите IP VM в `DJANGO_ALLOWED_HOSTS` (или используйте `localhost` при настроенном пробросе порта). Не отправляйте `.env` в Git.
+Для контейнерного стенда установите Docker Engine и Compose Plugin внутри Linux VM. Скопируйте `.env.example` в `.env`, задайте уникальные значения `DJANGO_SECRET_KEY` и `DB_PASSWORD`, затем укажите IP VM в `DJANGO_ALLOWED_HOSTS` (или используйте `localhost` при настроенном пробросе порта). Для локального HTTP-стенда оставьте `DJANGO_SECURE_SSL_REDIRECT=false` и `DJANGO_SECURE_COOKIES=false`; добавьте фактические HTTP origins в `DJANGO_CSRF_TRUSTED_ORIGINS`. Не отправляйте `.env` в Git.
 
 Из корня проекта выполните:
 
@@ -46,7 +46,7 @@ docker compose ps
 
 ## Настройки для публикации
 
-Перед запуском на сервере задайте `DJANGO_SECRET_KEY` уникальным секретом, `DJANGO_ALLOWED_HOSTS` списком доменов через запятую и `DJANGO_DEBUG=false`. Для PostgreSQL задайте `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` и `DB_PORT`. Для HTTPS приложение включает secure cookies, перенаправление на HTTPS и HSTS. Не публикуйте `hospital.db`, `db.sqlite3`, резервные копии или секретный ключ в открытом доступе.
+Перед запуском на сервере задайте `DJANGO_SECRET_KEY` уникальным секретом, `DJANGO_ALLOWED_HOSTS` списком доменов через запятую и `DJANGO_DEBUG=false`. Для PostgreSQL задайте `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` и `DB_PORT`. При HTTPS включите `DJANGO_SECURE_COOKIES=true` и `DJANGO_SECURE_SSL_REDIRECT=true`; для HTTP установите их в `false`. Укажите внешние origins в `DJANGO_CSRF_TRUSTED_ORIGINS`. Не публикуйте `hospital.db`, `db.sqlite3`, резервные копии или секретный ключ в открытом доступе.
 
 ### Перенос текущих данных из SQLite в PostgreSQL
 
